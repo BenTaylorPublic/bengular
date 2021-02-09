@@ -1,0 +1,29 @@
+{
+  "name": "@bentaylordev/bengular",
+  "version": "1.0.0",
+  "description": "bengular",
+  "main": "index.js",
+  "bin": {
+    "@your_npm_username/bengular": "bin/bengular",
+    "bengular": "bin/bengular"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "keywords": [
+    "cli",
+    "bengular"
+  ],
+  "scripts": {
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/BenTaylorPublic/bengular.git"
+  },
+  "author": "",
+  "license": "",
+  "bugs": {
+    "url": "https://github.com/BenTaylorPublic/bengular/issues"
+  },
+  "homepage": "https://github.com/BenTaylorPublic/bengular#readme"
+}
