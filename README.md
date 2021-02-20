@@ -5,7 +5,7 @@ Features:
 - TS, that compiles down to a single JS per page
 - SCSS
 - Shared TS files compiled down to a shared JS bundle available to all pages
-- Live reloads and rebuilds
+- Live rebuilds and reloads
 - Build format suited to hosting on Github Pages
 
 Commands:

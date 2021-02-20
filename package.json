@@ -1,12 +1,15 @@
 {
-  "name": "@bentaylordev/bengular",
+  "name": "bengular",
   "version": "1.0.0",
   "description": "bengular",
   "main": "index.js",
   "bin": {
-    "@bentaylordev/bengular": "bin/bengular",
     "bengular": "bin/bengular"
   },
+  "files": [
+    "bin/",
+    "lib/"
+  ],
   "publishConfig": {
     "access": "public"
   },
