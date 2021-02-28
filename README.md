@@ -1,14 +1,27 @@
 # Bengular
-A simple dev and build tool for websites.  
-Features:
-- HTML, with HTML only components, to remove code duplication
+
+A simple dev and build tool for websites.
+
+## Installation
+
+```
+npm install -g bengular
+cd /path/to/new/project/
+bengular init
+bengular dev
+```
+
+## Features
+
+- HTML, with HTML only components, to reduce code duplication
 - TS, that compiles down to a single JS per page
 - SCSS
 - Shared TS files compiled down to a shared JS bundle available to all pages
 - Live rebuilds and reloads
 - Build format suited to hosting on Github Pages
 
-Commands:
+## Commands
+
 ```
 bengular help			Shows this help menu
 bengular version		Shows bengular version info
