@@ -25,7 +25,7 @@
     "html-minifier": "^4.0.0",
     "sass": "^1.32.5",
     "socket.io": "^3.1.0",
-    "uglify-es": "^3.3.9"
+    "uglify-js": "^3.13.0"
   },
   "scripts": {},
   "repository": {
