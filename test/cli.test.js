@@ -11,18 +11,22 @@ describe("cli", function () {
             process.argv.push("version");
         });
         it("Should be a string", function () {
+            let result;
             console.log = function (versionMessage) {
-                expect(versionMessage).to.be.a("string");
-                expect(versionMessage).to.include("Bengular v");
+                result = versionMessage;
             };
-            cli();
+            cli.cli();
+            expect(result).to.be.a("string");
+            expect(result).to.include("Bengular v");
         })
         it("Should match package json", function () {
             const bengularPackageJson = require("../package.json");
+            let result;
             console.log = function (versionMessage) {
-                expect(versionMessage).to.include(bengularPackageJson.version);
+                result = versionMessage;
             };
-            cli();
+            cli.cli();
+            expect(result).to.include(bengularPackageJson.version);
         })
     });
 });
