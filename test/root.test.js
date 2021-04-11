@@ -14,8 +14,11 @@ before(function () {
     //Slows down the tests a bit, but it's the only way to know if it'll fully work
     global.skipConnectionRequiredTests = true;
     if (global.skipConnectionRequiredTests) {
+        console.info("📡 Tests disabled. They will be skipped and marked as pending");
         return;
     }
+
+    console.info("📡 Tests enabled\nCreating a test project for the tests to run on. Please wait...");
 
     this.timeout(60_000);
     process.chdir("./test/generated/");
@@ -50,8 +53,9 @@ after(function () {
         console.error("Failed to remove './test/generated/temp/', current directory: " + process.cwd());
     }
 });
-it("Test project generated properly", function () {
+it("📡 Test project generated properly", function () {
     if (global.skipConnectionRequiredTests) {
+        this.skip();
         return;
     }
 
