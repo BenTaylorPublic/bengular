@@ -1,0 +1,21 @@
+{
+  "include": [
+    "lib/*"
+  ],
+  "exclude": [],
+  "extension": [
+    ".js"
+  ],
+  "reporter": [
+    "text"
+  ],
+  "report-dir": "./test/generated/coverage",
+  "temp-dir": "./test/generated/.nyc_output",
+  "skip-full": false,
+  "all": true,
+  "check-coverage": true,
+  "branches": 80,
+  "lines": 80,
+  "functions": 80,
+  "statements": 80
+}
