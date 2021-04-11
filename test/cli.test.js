@@ -1,13 +1,6 @@
 const chai = require("chai");
 const expect = chai.expect;
 
-function removeArgs(args) {
-    for (let i = args.length; i >= 0; i--) {
-        if (["help", "version", "init", "dev", "build"].includes(args[i])) {
-            args.splice(i, 1);
-        }
-    }
-}
 
 describe("cli", function () {
     let cli;
@@ -16,7 +9,6 @@ describe("cli", function () {
     });
     describe("help", function () {
         beforeEach(function () {
-            removeArgs(process.argv);
             process.argv.push("help");
         });
         it("Should output multiple help options", function () {
@@ -35,7 +27,6 @@ describe("cli", function () {
     });
     describe("version", function () {
         beforeEach(function () {
-            removeArgs(process.argv);
             process.argv.push("version");
         });
         it("Should be a string", function () {
@@ -55,6 +46,25 @@ describe("cli", function () {
             };
             cli.cli();
             expect(result).to.include(bengularPackageJson.version);
+        });
+    });
+    describe("init", function () {
+        beforeEach(function () {
+            process.argv.push("init");
+            process.argv.push("help");
+        });
+        it("Help menu", function () {
+            let result = [];
+            console.log = function (helpMessage) {
+                result.push(helpMessage);
+            };
+            cli.cli();
+            expect(result).to.be.a("array");
+            expect(result).to.have.length.above(1);
+            for (let i = 0; i < result.length; i++) {
+                expect(result[i]).to.be.a("string");
+            }
+            expect(result).to.include("Usage: bengular init\n");
         });
     });
 });
