@@ -103,7 +103,6 @@ describe("cli", function () {
         });
         afterEach(function () {
             if (global.skipConnectionRequiredTests) {
-                this.skip();
                 return;
             }
             process.chdir("..");
