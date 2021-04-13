@@ -1,6 +1,7 @@
 const chai = require("chai");
 const expect = chai.expect;
 const {spawnSync} = require("child_process");
+const fs = require("fs");
 
 function startBengularSync(options) {
     return spawnSync(
@@ -31,7 +32,6 @@ describe("📡 build", function () {
         expect(bengularBuildResult.stdout).to.contain("Build type: dev");
         expect(bengularBuildResult.stdout).to.contain("Built in ");
 
-        const fs = require("fs");
         //Ensure the generated/build/ directory in temp contains:
         expect(fs.existsSync("./generated/build/index.html")).to.be.true;
         expect(fs.existsSync("./generated/build/index.css")).to.be.true;
@@ -53,7 +53,6 @@ describe("📡 build", function () {
         expect(bengularBuildResult.stdout).to.contain("Build type: prod");
         expect(bengularBuildResult.stdout).to.contain("Built in ");
 
-        const fs = require("fs");
         //Ensure the docs directory in temp contains:
         expect(fs.existsSync("./docs/index.html")).to.be.true;
         expect(fs.existsSync("./docs/index.css")).to.be.true;

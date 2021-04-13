@@ -1,5 +1,6 @@
 const chai = require("chai");
 const expect = chai.expect;
+const fs = require("fs");
 
 function removeArgs(args) {
     for (let i = args.length; i >= 0; i--) {
@@ -25,7 +26,6 @@ before(function () {
 
     //Setting up the temp project
     process.argv.push("init");
-    const fs = require("fs");
     if (!fs.existsSync("./temp/")) {
         fs.mkdirSync("temp");
     }
@@ -45,7 +45,6 @@ after(function () {
     if (global.skipConnectionRequiredTests) {
         return;
     }
-    const fs = require("fs");
     if (fs.existsSync("./temp/")) {
         fs.rmdirSync("temp", {recursive: true});
         process.chdir("../../");
@@ -58,8 +57,6 @@ it("📡 Test project generated properly", function () {
         this.skip();
         return;
     }
-
-    const fs = require("fs");
 
     expect(fs.existsSync("./temp/")).to.be.true;
 
