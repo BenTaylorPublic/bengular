@@ -1,6 +1,8 @@
 const chai = require("chai");
 const expect = chai.expect;
 const {spawn} = require("child_process");
+const http = require("http");
+const fs = require("fs");
 
 function startBengularAsync(options) {
     return spawn(
@@ -23,34 +25,63 @@ describe("📡 dev", function () {
         process.chdir("temp/");
     });
 
-    it("📡 Should start dev server", function () {
+    it("📡 Should start dev server", function (done) {
+        this.timeout(10_000);
         let bengularDevResult = startBengularAsync(["dev"]);
 
-        //Check what type of object this is
-        console.info(bengularDevResult);
+        bengularDevResult.stdout.on('data', function (data) {
+            const dataString = data.toString();
 
-        //Check the stdout to see if it built
-        //Check that root / redirects
-        //Check that it serves index.html
+            //Check the stdout to see if it built
+            if (dataString.includes("Now serving at http://localhost:8080")) {
 
-        //Need to somehow stop it lol
+                //Check if root is a redirect
+                http.get("http://localhost:8080/", (resp) => {
+                    expect(resp.statusCode).to.be.a("number");
+                    expect(resp.statusCode).to.equal(302);
 
-        //Remove the skip once it's all working
-        this.skip();
+                    //Checking if it can get index.html
+                    http.get("http://localhost:8080/index.html", (resp) => {
+                        expect(resp.statusCode).to.be.a("number");
+                        expect(resp.statusCode).to.equal(200);
+
+                        //All done testing
+                        //Time to kill it
+                        expect(bengularDevResult.kill("SIGINT")).to.be.true;
+                        done();
+                    }).on("error", (err) => {
+                        bengularDevResult.kill("SIGINT");
+                        expect.fail("Bad response for get index: " + err);
+                        done();
+                    });
+                }).on("error", (err) => {
+                    bengularDevResult.kill("SIGINT");
+                    expect.fail("Bad response for get redirect: " + err);
+                    done();
+                });
+
+            }
+        });
     });
 
 
     describe("📡 rebuilds", function () {
-        let spawn;
-        before(function () {
-            //Don't run these tests until the above one starting the dev server works
-            this.skip();
-            return;
-            let spawn = startBengularAsync(["dev"]);
+
+        let bengularProcess;
+
+        beforeEach(function (done) {
+            this.timeout(10_000);
+            bengularProcess = startBengularAsync(["dev"]);
+
+            bengularProcess.stdout.on('data', function (data) {
+                if (data.toString().includes("Now serving at http://localhost:8080")) {
+                    done();
+                }
+            });
         });
 
         it("📡 Page html change", function () {
-            this.timeout(3_000);
+            this.timeout(10_000);
             //Check it builds again, looking at the stdout of the spawn
             //Check that it built is using the module html build type
             //Check that it includes a flag (<div>marker1</div>)
@@ -59,7 +90,7 @@ describe("📡 dev", function () {
         });
 
         it("📡 Page ts change", function () {
-            this.timeout(3_000);
+            this.timeout(10_000);
             //Check it builds again, looking at the stdout of the spawn
             //Check that it built is using the module ts build type
             //Check that it includes a flag (console.log("marker2");)
@@ -68,7 +99,7 @@ describe("📡 dev", function () {
         });
 
         it("📡 Page scss change", function () {
-            this.timeout(3_000);
+            this.timeout(10_000);
             //Check it builds again, looking at the stdout of the spawn
             //Check that it built is using the module scss build type
             //Check that it includes a flag (.marker3{})
@@ -77,7 +108,7 @@ describe("📡 dev", function () {
         });
 
         it("📡 Component change", function () {
-            this.timeout(3_000);
+            this.timeout(10_000);
             //Check it builds again, looking at the stdout of the spawn
             //Check that it built is using the all html build type
             //GET request the index.html and ensure it has the marker in it (<div>marker4</div>)
@@ -86,7 +117,7 @@ describe("📡 dev", function () {
         });
 
         it("📡 Shared ts change", function () {
-            this.timeout(3_000);
+            this.timeout(10_000);
             //Check it builds again, looking at the stdout of the spawn
             //Check that it built is using the all ts build type
             //Check that the shared bundle includes a flag (console.log("marker4");)
@@ -95,7 +126,7 @@ describe("📡 dev", function () {
         });
 
         it("📡 Global styles change", function () {
-            this.timeout(3_000);
+            this.timeout(10_000);
             //Check it builds again, looking at the stdout of the spawn
             //Check that it built is using the all scss build type
             //Check that it includes a flag (.marker3{})
@@ -103,8 +134,8 @@ describe("📡 dev", function () {
             this.skip();
         });
 
-        after(function () {
-            //Kill spawn
+        afterEach(function () {
+            bengularProcess.kill("SIGINT");
         });
     });
 
