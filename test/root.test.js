@@ -25,14 +25,17 @@ before(function () {
     process.chdir("./test/generated/");
 
     //Setting up the temp project
-    process.argv.push("init");
     if (!fs.existsSync("./temp/")) {
+        fs.mkdirSync("temp");
+    } else {
+        fs.rmdirSync("./temp/", {recursive: true});
         fs.mkdirSync("temp");
     }
     process.chdir("./temp/");
     const cli = require("../lib/cli");
     console.log = function (message) {
     };
+    process.argv.push("init");
     cli.cli();
     process.chdir("..");
 });
@@ -52,6 +55,7 @@ after(function () {
         console.error("Failed to remove './test/generated/temp/', current directory: " + process.cwd());
     }
 });
+
 it("📡 Test project generated properly", function () {
     if (global.skipConnectionRequiredTests) {
         this.skip();

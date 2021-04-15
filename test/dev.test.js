@@ -16,6 +16,28 @@ function startBengularAsync(options) {
         });
 }
 
+let filePathToReset;
+let oldFileDataToReset;
+
+function saveToFile(filePath, newFileData) {
+    expect(filePathToReset).is.null;
+    expect(oldFileDataToReset).is.null;
+
+    filePathToReset = filePath;
+    expect(fs.existsSync(filePath)).to.be.true;
+    oldFileDataToReset = fs.readFileSync(filePath, "utf8");
+    fs.writeFileSync(filePath, newFileData);
+}
+
+function resetFile() {
+    expect(filePathToReset).is.not.null;
+    expect(oldFileDataToReset).is.not.null;
+
+    fs.writeFileSync(filePathToReset, oldFileDataToReset);
+    filePathToReset = null;
+    oldFileDataToReset = null;
+}
+
 describe("📡 dev", function () {
     before(function () {
         if (global.skipConnectionRequiredTests) {
@@ -28,6 +50,7 @@ describe("📡 dev", function () {
     it("📡 Should start dev server", function (done) {
         this.timeout(10_000);
         let bengularDevResult = startBengularAsync(["dev"]);
+        let finished = false;
 
         bengularDevResult.stdout.on('data', function (data) {
             const dataString = data.toString();
@@ -42,21 +65,33 @@ describe("📡 dev", function () {
 
                     //Checking if it can get index.html
                     http.get("http://localhost:8080/index.html", (resp) => {
+                        if (finished) {
+                            return;
+                        }
                         expect(resp.statusCode).to.be.a("number");
                         expect(resp.statusCode).to.equal(200);
 
                         //All done testing
                         //Time to kill it
                         expect(bengularDevResult.kill("SIGINT")).to.be.true;
+                        finished = true;
                         done();
                     }).on("error", (err) => {
+                        if (finished) {
+                            return;
+                        }
                         bengularDevResult.kill("SIGINT");
                         expect.fail("Bad response for get index: " + err);
+                        finished = true;
                         done();
                     });
                 }).on("error", (err) => {
+                    if (finished) {
+                        return;
+                    }
                     bengularDevResult.kill("SIGINT");
                     expect.fail("Bad response for get redirect: " + err);
+                    finished = true;
                     done();
                 });
 
