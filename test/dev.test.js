@@ -16,26 +16,72 @@ function startBengularAsync(options) {
         });
 }
 
-let filePathToReset = null;
-let oldFileDataToReset = null;
-
 function saveToFile(filePath, newFileData) {
-    expect(filePathToReset).is.null;
-    expect(oldFileDataToReset).is.null;
-
-    filePathToReset = filePath;
     expect(fs.existsSync(filePath)).to.be.true;
-    oldFileDataToReset = fs.readFileSync(filePath, "utf8");
     fs.writeFileSync(filePath, newFileData);
 }
 
-function resetFile() {
-    expect(filePathToReset).is.not.null;
-    expect(oldFileDataToReset).is.not.null;
+async function waitUntilProcessStdouts(bengularProcess,
+                                       stdoutStringsRequired) {
+    return new Promise(resolve => {
+        bengularProcess.stdout.on("data", function (data) {
+            const dataString = data.toString();
+            for (let i = stdoutStringsRequired.length - 1; i >= 0; i--) {
+                if (dataString.includes(stdoutStringsRequired[i])) {
+                    stdoutStringsRequired.splice(i, 1);
+                }
+            }
+            if (stdoutStringsRequired.length === 0) {
+                resolve(true);
+            }
+        });
+    });
+}
 
-    fs.writeFileSync(filePathToReset, oldFileDataToReset);
-    filePathToReset = null;
-    oldFileDataToReset = null;
+async function fileReturnIncludeCheck(fileRoute,
+                                      getResultTextToInclude) {
+    return new Promise(resolve => {
+
+        http.get(`http://localhost:8080/${fileRoute}`, (resp) => {
+            expect(resp.statusCode).to.be.a("number");
+            expect(resp.statusCode).to.equal(200);
+
+            resp.setEncoding("utf8");
+            let data = "";
+            resp.on("data", (chunk) => {
+                data += chunk;
+            });
+            resp.on("end", () => {
+                expect(data).to.include("<div>marker1</div>");
+
+                for (let i = 0; i < getResultTextToInclude.length; i++) {
+                    expect(data).to.include(getResultTextToInclude[i]);
+                    if (!data.includes(getResultTextToInclude[i])) {
+                        resolve(false);
+                    }
+                }
+
+                resolve(true);
+            });
+
+        }).on("error", (err) => {
+            expect.fail("Bad response for get: " + err);
+            resolve(false);
+        });
+    });
+}
+
+async function fileSaveTest(bengularProcess,
+                            fileRoute,
+                            saveFileFunction,
+                            stdoutStringsRequired,
+                            getResultTextToInclude) {
+    saveFileFunction();
+    const bengularStdoutResult = await waitUntilProcessStdouts(bengularProcess, stdoutStringsRequired);
+    expect(bengularStdoutResult).to.be.true;
+
+    const getResult = await fileReturnIncludeCheck(fileRoute, getResultTextToInclude);
+    expect(getResult).to.be.true;
 }
 
 describe("📡 dev", function () {
@@ -52,7 +98,7 @@ describe("📡 dev", function () {
         let bengularDevResult = startBengularAsync(["dev"]);
         let finished = false;
 
-        bengularDevResult.stdout.on('data', function (data) {
+        bengularDevResult.stdout.on("data", function (data) {
             const dataString = data.toString();
 
             //Check the stdout to see if it built
@@ -108,59 +154,29 @@ describe("📡 dev", function () {
             this.timeout(10_000);
             bengularProcess = startBengularAsync(["dev"]);
 
-            bengularProcess.stdout.on('data', function (data) {
+            bengularProcess.stdout.on("data", function (data) {
                 if (data.toString().includes("Now serving at http://localhost:8080")) {
                     done();
                 }
             });
         });
 
-        it("📡 Page html change", function (done) {
+        it("📡 Page html change", async function () {
             this.timeout(10_000);
-            let finished = false;
-            bengularProcess.stdout.on('data', function (data) {
-                if (finished) {
-                    return;
-                }
-                if (data.toString().includes("Built in ")) {
-                    http.get("http://localhost:8080/index.html", (resp) => {
-                        if (finished) {
-                            return;
-                        }
-                        finished = true;
-
-                        expect(resp.statusCode).to.be.a("number");
-                        expect(resp.statusCode).to.equal(200);
-
-                        resp.setEncoding("utf8");
-                        let data = "";
-                        resp.on("data", (chunk) => {
-                            data += chunk;
-                        });
-                        resp.on("end", () => {
-                            expect(data).to.include("<div>marker1</div>");
-                            resetFile();
-                            done();
-                        });
-
-                    }).on("error", (err) => {
-                        if (finished) {
-                            return;
-                        }
-
-                        finished = true;
-                        expect.fail("Bad response for get index: " + err);
-                        resetFile();
-                        done();
-                    });
-                }
-            });
 
             //Saving to the file
-            saveToFile("./src/pages/index/index.html",
-                `<html lang="en">
+            const saveIndexHtmlFn = function () {
+                saveToFile("./src/pages/index/index.html",
+                    `<html lang="en">
                                 <div>marker1</div>
                             </html>`);
+            };
+            await fileSaveTest(bengularProcess,
+                "index.html",
+                saveIndexHtmlFn,
+                ["Built in ", "Build type: dev module html, module: index"],
+                ["<div>marker1</div>"]);
+
         });
 
         it("📡 Page ts change", function () {
