@@ -16,8 +16,8 @@ function startBengularAsync(options) {
         });
 }
 
-let filePathToReset;
-let oldFileDataToReset;
+let filePathToReset = null;
+let oldFileDataToReset = null;
 
 function saveToFile(filePath, newFileData) {
     expect(filePathToReset).is.null;
@@ -115,13 +115,52 @@ describe("📡 dev", function () {
             });
         });
 
-        it("📡 Page html change", function () {
+        it("📡 Page html change", function (done) {
             this.timeout(10_000);
-            //Check it builds again, looking at the stdout of the spawn
-            //Check that it built is using the module html build type
-            //Check that it includes a flag (<div>marker1</div>)
-            //Remove the skip once it's all working
-            this.skip();
+            let finished = false;
+            bengularProcess.stdout.on('data', function (data) {
+                if (finished) {
+                    return;
+                }
+                if (data.toString().includes("Built in ")) {
+                    http.get("http://localhost:8080/index.html", (resp) => {
+                        if (finished) {
+                            return;
+                        }
+                        finished = true;
+
+                        expect(resp.statusCode).to.be.a("number");
+                        expect(resp.statusCode).to.equal(200);
+
+                        resp.setEncoding("utf8");
+                        let data = "";
+                        resp.on("data", (chunk) => {
+                            data += chunk;
+                        });
+                        resp.on("end", () => {
+                            expect(data).to.include("<div>marker1</div>");
+                            resetFile();
+                            done();
+                        });
+
+                    }).on("error", (err) => {
+                        if (finished) {
+                            return;
+                        }
+
+                        finished = true;
+                        expect.fail("Bad response for get index: " + err);
+                        resetFile();
+                        done();
+                    });
+                }
+            });
+
+            //Saving to the file
+            saveToFile("./src/pages/index/index.html",
+                `<html lang="en">
+                                <div>marker1</div>
+                            </html>`);
         });
 
         it("📡 Page ts change", function () {
