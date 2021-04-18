@@ -52,8 +52,6 @@ async function fileReturnIncludeCheck(fileRoute,
                 data += chunk;
             });
             resp.on("end", () => {
-                expect(data).to.include("<div>marker1</div>");
-
                 for (let i = 0; i < getResultTextToInclude.length; i++) {
                     expect(data).to.include(getResultTextToInclude[i]);
                     if (!data.includes(getResultTextToInclude[i])) {
@@ -161,67 +159,91 @@ describe("📡 dev", function () {
             });
         });
 
+        it("📡 Component change", async function () {
+            this.timeout(10_000);
+
+            const saveFileFunction = function () {
+                saveToFile("./src/components/example-component.html",
+                    `<div>marker1</div>`);
+            };
+            await fileSaveTest(bengularProcess,
+                "index.html",
+                saveFileFunction,
+                ["Built in ", "Build type: dev all html"],
+                [`<div>marker1</div>`]);
+        });
+
         it("📡 Page html change", async function () {
             this.timeout(10_000);
 
-            //Saving to the file
-            const saveIndexHtmlFn = function () {
+            const saveFileFunction = function () {
                 saveToFile("./src/pages/index/index.html",
                     `<html lang="en">
-                                <div>marker1</div>
+                                <div>marker2</div>
                             </html>`);
             };
             await fileSaveTest(bengularProcess,
                 "index.html",
-                saveIndexHtmlFn,
+                saveFileFunction,
                 ["Built in ", "Build type: dev module html, module: index"],
-                ["<div>marker1</div>"]);
+                ["<div>marker2</div>"]);
 
         });
 
-        it("📡 Page ts change", function () {
+        it("📡 Page ts change", async function () {
             this.timeout(10_000);
-            //Check it builds again, looking at the stdout of the spawn
-            //Check that it built is using the module ts build type
-            //Check that it includes a flag (console.log("marker2");)
-            //Remove the skip once it's all working
-            this.skip();
+
+            const saveFileFunction = function () {
+                saveToFile("./src/pages/index/index.ts",
+                    `console.log("marker3");`);
+            };
+            await fileSaveTest(bengularProcess,
+                "index.bundle.js",
+                saveFileFunction,
+                ["Built in ", "Build type: dev module ts, module: index"],
+                [`console.log("marker3");`]);
         });
 
-        it("📡 Page scss change", function () {
+        it("📡 Page scss change", async function () {
             this.timeout(10_000);
-            //Check it builds again, looking at the stdout of the spawn
-            //Check that it built is using the module scss build type
-            //Check that it includes a flag (.marker3{})
-            //Remove the skip once it's all working
-            this.skip();
+
+            const saveFileFunction = function () {
+                saveToFile("./src/pages/index/index.scss",
+                    `.marker4{color: red;}`);
+            };
+            await fileSaveTest(bengularProcess,
+                "index.css",
+                saveFileFunction,
+                ["Built in ", "Build type: dev module scss, module: index"],
+                [`.marker4`]);
         });
 
-        it("📡 Component change", function () {
+        it("📡 Shared ts change", async function () {
             this.timeout(10_000);
-            //Check it builds again, looking at the stdout of the spawn
-            //Check that it built is using the all html build type
-            //GET request the index.html and ensure it has the marker in it (<div>marker4</div>)
-            //Remove the skip once it's all working
-            this.skip();
+
+            const saveFileFunction = function () {
+                saveToFile("./src/shared/example-service.ts",
+                    `console.log("marker5");`);
+            };
+            await fileSaveTest(bengularProcess,
+                "shared.bundle.js",
+                saveFileFunction,
+                ["Built in ", "Build type: dev all ts"],
+                [`console.log("marker5");`]);
         });
 
-        it("📡 Shared ts change", function () {
+        it("📡 Global styles change", async function () {
             this.timeout(10_000);
-            //Check it builds again, looking at the stdout of the spawn
-            //Check that it built is using the all ts build type
-            //Check that the shared bundle includes a flag (console.log("marker4");)
-            //Remove the skip once it's all working
-            this.skip();
-        });
 
-        it("📡 Global styles change", function () {
-            this.timeout(10_000);
-            //Check it builds again, looking at the stdout of the spawn
-            //Check that it built is using the all scss build type
-            //Check that it includes a flag (.marker3{})
-            //Remove the skip once it's all working
-            this.skip();
+            const saveFileFunction = function () {
+                saveToFile("./src/styles/global-styles.scss",
+                    `.marker6{color: red;}`);
+            };
+            await fileSaveTest(bengularProcess,
+                "global-styles.css",
+                saveFileFunction,
+                ["Built in ", "Build type: dev all scss"],
+                [`.marker6`]);
         });
 
         afterEach(function () {

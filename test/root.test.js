@@ -13,7 +13,7 @@ function removeArgs(args) {
 before(function () {
     //Set to false to test flows that run using `npm install`
     //Slows down the tests a bit, but it's the only way to know if it'll fully work
-    global.skipConnectionRequiredTests = true;
+    global.skipConnectionRequiredTests = false;
     if (global.skipConnectionRequiredTests) {
         console.info("📡 Tests disabled. They will be skipped and marked as pending");
         return;
