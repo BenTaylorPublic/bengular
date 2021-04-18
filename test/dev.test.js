@@ -82,6 +82,18 @@ async function fileSaveTest(bengularProcess,
     expect(getResult).to.be.true;
 }
 
+function waitUntilServing() {
+    return new Promise(resolve => {
+        const bengularProcess = startBengularAsync(["dev"]);
+
+        bengularProcess.stdout.on("data", function (data) {
+            if (data.toString().includes("Now serving at http://localhost:8080")) {
+                resolve(bengularProcess);
+            }
+        });
+    });
+}
+
 describe("📡 dev", function () {
     before(function () {
         if (global.skipConnectionRequiredTests) {
@@ -148,15 +160,9 @@ describe("📡 dev", function () {
 
         let bengularProcess;
 
-        beforeEach(function (done) {
+        beforeEach(async function () {
             this.timeout(10_000);
-            bengularProcess = startBengularAsync(["dev"]);
-
-            bengularProcess.stdout.on("data", function (data) {
-                if (data.toString().includes("Now serving at http://localhost:8080")) {
-                    done();
-                }
-            });
+            bengularProcess = await waitUntilServing();
         });
 
         it("📡 Component change", async function () {
