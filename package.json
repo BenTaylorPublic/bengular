@@ -27,7 +27,15 @@
     "socket.io": "^4.0.0",
     "uglify-js": "^3.13.0"
   },
-  "scripts": {},
+  "devDependencies": {
+    "chai": "^4.3.4",
+    "mocha": "^8.3.2",
+    "nyc": "^15.1.0"
+  },
+  "scripts": {
+    "test": "mocha",
+    "coverage": "nyc npm run test"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/BenTaylorPublic/bengular.git"
