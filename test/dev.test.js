@@ -117,7 +117,7 @@ describe("📡 dev", function () {
                 //Check if root is a redirect
                 http.get("http://localhost:8080/", (resp) => {
                     expect(resp.statusCode).to.be.a("number");
-                    expect(resp.statusCode).to.equal(302);
+                    expect(resp.statusCode).to.equal(200);
 
                     //Checking if it can get index.html
                     http.get("http://localhost:8080/index.html", (resp) => {
