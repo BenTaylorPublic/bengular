@@ -28,7 +28,7 @@ before(function () {
     if (!fs.existsSync("./temp/")) {
         fs.mkdirSync("temp");
     } else {
-        fs.rmdirSync("./temp/", {recursive: true});
+        fs.rmSync("./temp/", {recursive: true});
         fs.mkdirSync("temp");
     }
     process.chdir("./temp/");
@@ -49,7 +49,7 @@ after(function () {
         return;
     }
     if (fs.existsSync("./temp/")) {
-        fs.rmdirSync("temp", {recursive: true});
+        fs.rmSync("temp", {recursive: true});
         process.chdir("../../");
     } else {
         console.error("Failed to remove './test/generated/temp/', current directory: " + process.cwd());

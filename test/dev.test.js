@@ -3,6 +3,7 @@ const expect = chai.expect;
 const {spawn} = require("child_process");
 const http = require("http");
 const fs = require("fs");
+const portToTestOn = 4200;
 
 function startBengularAsync(options) {
     return spawn(
@@ -42,7 +43,7 @@ async function fileReturnIncludeCheck(fileRoute,
                                       getResultTextToInclude) {
     return new Promise(resolve => {
 
-        http.get(`http://localhost:8080/${fileRoute}`, (resp) => {
+        http.get(`http://localhost:${portToTestOn}/${fileRoute}`, (resp) => {
             expect(resp.statusCode).to.be.a("number");
             expect(resp.statusCode).to.equal(200);
 
@@ -87,7 +88,7 @@ function waitUntilServing() {
         const bengularProcess = startBengularAsync(["dev"]);
 
         bengularProcess.stdout.on("data", function (data) {
-            if (data.toString().includes("Now serving at http://localhost:8080")) {
+            if (data.toString().includes(`Now serving at http://localhost:${portToTestOn}`)) {
                 resolve(bengularProcess);
             }
         });
@@ -112,15 +113,15 @@ describe("📡 dev", function () {
             const dataString = data.toString();
 
             //Check the stdout to see if it built
-            if (dataString.includes("Now serving at http://localhost:8080")) {
+            if (dataString.includes(`Now serving at http://localhost:${portToTestOn}`)) {
 
                 //Check if root is a redirect
-                http.get("http://localhost:8080/", (resp) => {
+                http.get(`http://localhost:${portToTestOn}/`, (resp) => {
                     expect(resp.statusCode).to.be.a("number");
                     expect(resp.statusCode).to.equal(200);
 
                     //Checking if it can get index.html
-                    http.get("http://localhost:8080/index.html", (resp) => {
+                    http.get(`http://localhost:${portToTestOn}/index.html`, (resp) => {
                         if (finished) {
                             return;
                         }
