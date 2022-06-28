@@ -19,17 +19,17 @@
   ],
   "dependencies": {
     "browserify": "^17.0.0",
-    "chokidar": "^3.5.1",
+    "chokidar": "^3.5.3",
     "colors": "^1.4.0",
-    "eslint": "^7.24.0",
+    "eslint": "^8.18.0",
     "html-minifier": "^4.0.0",
-    "sass": "^1.32.10",
-    "socket.io": "^4.0.1",
-    "uglify-js": "^3.13.4"
+    "sass": "^1.53.0",
+    "socket.io": "^4.5.1",
+    "uglify-js": "^3.16.1"
   },
   "devDependencies": {
-    "chai": "^4.3.4",
-    "mocha": "^8.3.2",
+    "chai": "^4.3.6",
+    "mocha": "^10.0.0",
     "nyc": "^15.1.0"
   },
   "scripts": {
